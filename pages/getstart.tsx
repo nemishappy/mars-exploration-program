@@ -13,8 +13,16 @@ import Paper from "@mui/material/Paper";
 
 let nextId = 1;
 const initialTasks = [
-  { id: 0, direction: "N", posX: "0", posY: "0", reachEdge: false },
+  { id: 0, input: "", direction: "N", posX: 0, posY: 0, reachEdge: false },
 ];
+interface Output {
+  id: number;
+  input: string;
+  direction: string;
+  posX: number;
+  posY: number;
+  reachEdge: boolean;
+}
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -23,17 +31,6 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
-  },
-}));
-
-const ColoredTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-    backgroundColor: "#60A5FA",
   },
 }));
 
@@ -50,15 +47,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const GetStart = () => {
   const [isValid, setValid] = useState(false);
   const [errMsg, setErrMsg] = useState("");
-  const [range, setRange] = useState(0);
-  const [output, setOutput] = useState(initialTasks);
+  const [outputs, setOutput] = useState(initialTasks);
 
   const header = ["input", "output"];
-  const data = [
-    ["rl11", "rl12", "rl13"],
-    ["rl21", "rl22", "rl23"],
-    ["r31", "rl32", "rl33"],
-  ];
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileReader = new FileReader();
@@ -78,7 +69,6 @@ const GetStart = () => {
             "This is mars exploration mission every input must be correct."
           );
         }
-        console.log(content);
       };
     }
   };
@@ -88,19 +78,12 @@ const GetStart = () => {
         const element = lines[index];
         switch (element) {
           case "F":
-            console.log(true);
             break;
 
           case "L":
-            console.log(true);
             break;
 
           case "R":
-            console.log(true);
-            break;
-
-          case "A":
-            console.log(true);
             break;
 
           default:
@@ -116,9 +99,89 @@ const GetStart = () => {
   }
 
   function processInputs(lines: string[]): void {
-    lines.forEach(function (value) {
-      console.log(value);
-    });
+    const dirc = ["N", "E", "S", "W"];
+    // Make a shallow copy of the items
+    let items = [...outputs];
+    // Make a shallow copy of the item to mutate
+    let item = {
+      ...items[0],
+      input: lines[0],
+    };
+    // Put it back into our array.
+    items[0] = item;
+    // Set the state to our new copy
+    setOutput([...items]);
+    const range = Number(lines[0]);
+    let rotation = range * 4;
+    let prevDirc = 0;
+    let prevX = outputs[0].posX;
+    let prevY = outputs[0].posY;
+    let output: Output;
+    for (let index = 1; index < lines.length; index++) {
+      const element = lines[index];
+
+      switch (element) {
+        case "F":
+          switch (prevDirc) {
+            case 0: // North
+              if (prevY < range) {
+                prevY++;
+              }
+              break;
+
+            case 1: // East
+              if (prevX < range) {
+                prevX++;
+              }
+              break;
+
+            case 2: // South
+              if (prevY > 0) {
+                prevY--;
+              }
+              break;
+
+            case 3: // West
+              if (prevX > 0) {
+                prevX--;
+              }
+              break;
+
+            default:
+              setErrMsg("Something went wrong.");
+              return;
+          }
+
+          break;
+
+        case "L":
+          rotation--;
+          break;
+
+        case "R":
+          rotation++;
+          break;
+      }
+      prevDirc = rotation % 4;
+
+      output = {
+        id: nextId++,
+        input: element,
+        direction: dirc[prevDirc],
+        posX: prevX,
+        posY: prevY,
+        reachEdge: false,
+      };
+      add(output);
+    }
+  }
+
+  function add(item: Output): void {
+    setOutput((prev) => [...prev, item]);
+  }
+  function resetOutput() {
+    setOutput(initialTasks);
+    nextId = 1;
   }
 
   return (
@@ -126,33 +189,45 @@ const GetStart = () => {
       <section>
         <div className={utilStyles.dFlexCol}>
           <input accept="text/plain" type="file" onChange={handleChange} />
-          <button className={utilStyles.my1} disabled={!isValid}>Process</button>
+          <button
+            className={utilStyles.my1}
+            onClick={resetOutput}
+            disabled={!isValid}
+          >
+            Reset
+          </button>
         </div>
         {errMsg ? <p className={utilStyles.error}>{errMsg}</p> : <></>}
       </section>
 
-      <section className={utilStyles.my1r }>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 100 }} aria-label="customized table">
-            <TableHead>
-              <TableRow>
-                <StyledTableCell align="center">{header[0]}</StyledTableCell>
-                <StyledTableCell align="center">{header[1]}</StyledTableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {output.map(({id, direction, posX, posY}) => {
-                const WhichTableCell = StyledTableCell;
-                return (
-                  <StyledTableRow key={id}>
-                    <WhichTableCell align="center">{direction}</WhichTableCell>
-                    <WhichTableCell align="center">{posX +':'+posY}</WhichTableCell>
-                  </StyledTableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <section className={utilStyles.my1r}>
+        {outputs[0].input ? (
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 100 }} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell align="center">{header[0]}</StyledTableCell>
+                  <StyledTableCell align="center">{header[1]}</StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {outputs.map(({ id, input, direction, posX, posY }) => {
+                  const WhichTableCell = StyledTableCell;
+                  return (
+                    <StyledTableRow key={id}>
+                      <WhichTableCell align="center">{input}</WhichTableCell>
+                      <WhichTableCell align="center">
+                        {direction + ":" + posX + "," + posY}
+                      </WhichTableCell>
+                    </StyledTableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <></>
+        )}
       </section>
     </Layout>
   );
