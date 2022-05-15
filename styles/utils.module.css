@@ -50,3 +50,16 @@
 .lightText {
   color: #666;
 }
+
+.dFlexCol{
+  display: flex;
+  flex-direction: column
+}
+
+.success {
+  color: green;
+}
+.error {
+  color: red;
+}
+
