@@ -23,12 +23,12 @@ const Home: NextPage = () => {
               <p>Let&apos;s help us control rover that explore Mars planet!</p>
             </a>
           </Link>
-          {/* <Link href="/">
+          <Link href="/controller">
             <a className={styles.card}>
-              <h2>Incoming &rarr;</h2>
-              <p>Yes this is incoming!</p>
+              <h2>Exploration &rarr;</h2>
+              <p>Upload your code to explore Mars planet!</p>
             </a>
-          </Link> */}
+          </Link>
         </div>
       </section>
       

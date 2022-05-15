@@ -42,6 +42,9 @@
   padding: 0;
   margin: 0;
 }
+.listItem {
+  margin: 0 0 1.25rem;
+}
 
 .my1r {
   margin: 1.25rem 0;
@@ -55,9 +58,9 @@
   color: #666;
 }
 
-.dFlexCol{
+.dFlexCol {
   display: flex;
-  flex-direction: column
+  flex-direction: column;
 }
 
 .success {
@@ -66,4 +69,3 @@
 .error {
   color: red;
 }
-
