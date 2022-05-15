@@ -1,17 +1,64 @@
 import React, { useState } from "react";
 import Layout from "../components/layout";
-import { GetStaticProps, GetStaticPaths } from "next";
 import utilStyles from "../styles/utils.module.css";
+
+import { styled } from "@mui/material/styles";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 
 let nextId = 1;
 const initialTasks = [
   { id: 0, direction: "N", posX: "0", posY: "0", reachEdge: false },
 ];
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
+
+const ColoredTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+    backgroundColor: "#60A5FA",
+  },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+  // hide last border
+  "&:last-child td, &:last-child th": {
+    border: 0,
+  },
+}));
+
 const GetStart = () => {
   const [isValid, setValid] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [range, setRange] = useState(0);
   const [output, setOutput] = useState(initialTasks);
+
+  const header = ["input", "output"];
+  const data = [
+    ["rl11", "rl12", "rl13"],
+    ["rl21", "rl22", "rl23"],
+    ["r31", "rl32", "rl33"],
+  ];
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileReader = new FileReader();
@@ -76,11 +123,37 @@ const GetStart = () => {
 
   return (
     <Layout>
-      <div className={utilStyles.dFlexCol}>
-        <input accept="text/plain" type="file" onChange={handleChange} />
-        <button disabled={!isValid}>Process</button>
-      </div>
-      {errMsg ? <p className={utilStyles.error}>{errMsg}</p> : <></>}
+      <section>
+        <div className={utilStyles.dFlexCol}>
+          <input accept="text/plain" type="file" onChange={handleChange} />
+          <button className={utilStyles.my1} disabled={!isValid}>Process</button>
+        </div>
+        {errMsg ? <p className={utilStyles.error}>{errMsg}</p> : <></>}
+      </section>
+
+      <section className={utilStyles.my1r }>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 100 }} aria-label="customized table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell align="center">{header[0]}</StyledTableCell>
+                <StyledTableCell align="center">{header[1]}</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {output.map(({id, direction, posX, posY}) => {
+                const WhichTableCell = StyledTableCell;
+                return (
+                  <StyledTableRow key={id}>
+                    <WhichTableCell align="center">{direction}</WhichTableCell>
+                    <WhichTableCell align="center">{posX +':'+posY}</WhichTableCell>
+                  </StyledTableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </section>
     </Layout>
   );
 };

@@ -43,8 +43,12 @@
   margin: 0;
 }
 
-.listItem {
-  margin: 0 0 1.25rem;
+.my1r {
+  margin: 1.25rem 0;
+}
+
+.my1 {
+  margin: 1rem 0;
 }
 
 .lightText {
